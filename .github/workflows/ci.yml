@@ -1,0 +1,44 @@
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ${{ matrix.so }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        so: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # O juiz le uma rua PRONTA e confere pista por pista, pela definicao. Ele
+      # nunca e consultado durante a busca. E nos enigmas pequenos a forca bruta
+      # monta TODAS as ruas possiveis (216 e 331.776) e entrega cada uma ao juiz:
+      # as duas acham o mesmo numero de solucoes.
+      - name: testes
+        run: dotnet test testes/Zebra.Testes/Zebra.Testes.csproj -c Release --nologo -v q
+
+      - name: quem tem o peixe
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- peixe
+
+      - name: so a ordem das categorias
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- ordem
+
+      - name: tirando uma pista de cada vez
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- pistas
+
+      - name: todos os 32.768 subconjuntos de pistas
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- minimo
+
+      - name: a busca contra a forca bruta
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- juiz
